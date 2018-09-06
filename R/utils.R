@@ -263,6 +263,7 @@ get_nodes <- function(id = NULL, contributors = FALSE, files = FALSE,
       stop(sprintf("No children available for node %s", id))
   }
   
+  # This part compiles all the pages (hence "next")
   while (!is.null(res$links$`next`)) {
     whilst <- rjson::fromJSON(
       httr::content(

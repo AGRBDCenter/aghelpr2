@@ -16,9 +16,9 @@ upload_files <- function(id, path, name = NULL) {
                    config = get_config(),
                    body = httr::upload_file(path))
   if (req$status_code == "201") {
-    cat("Upload successful")
+    cat("Upload successful\n")
   } else {
-    cat(sprintf("Upload unsuccessful. Returned code: %s.", req$status_code))
+    cat(sprintf("Upload unsuccessful. Returned code: %s.\n", req$status_code))
   }
 }
 
@@ -48,10 +48,11 @@ download_files <- function(id, path) {
                    httr::write_disk(path, overwrite = TRUE))
 
   if (req$status_code == "200") {
-    cat("Download successful")
+    cat("Download successful\n")
   } else {
-    cat(sprintf("Download unsuccessful. Returned code: %s.", req$status_code))
+    cat(sprintf("Download unsuccessful. Returned code: %s.\n", req$status_code))
   }
+  return(path)
 }
 
 

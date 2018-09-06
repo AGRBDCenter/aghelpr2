@@ -1,0 +1,16 @@
+Package: aghelpR
+Title: Helper functions for osfr and Ag Department RBDC
+Version: 0.0.1
+Authors@R: person("McKay", "Davis", email = "mckaymdavis@gmail.com", role = c("aut", "cre"))
+Description: This package provides helper functions for `osfr` specific to the Ag division of the RBDC. These functions may be made more modular in future versions to apply to other `osfr` related projects. Currently, `osfr` provides no way to interact with files which have not been manually viewed on the OSF. This package is allows a workaround for this utilizing file and folder WaterButler API links. Package requires osfr as found in `devtools::install_github("McKayMDavis/osfr")`
+Depends: R (>= 3.5.0)
+Encoding: UTF-8
+LazyData: true
+RoxygenNote: 6.0.1
+Imports: stringr,
+    httr,
+    rjson,
+    readxl,
+    readr,
+    crayon
+Suggests: osfr

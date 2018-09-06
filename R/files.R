@@ -42,18 +42,10 @@ upload_revisions <- function() {
 
 download_files <- function(id, path) {
   url_file <- sprintf("https://osf.io/download/%s/", id)
-
-  if (file.exists(path)) {
-    input <- readline(prompt = "Specified file already exists. Overwrite it? (y/n)  ")
-  }
-
-  if (input %in% c("y", "yes")) {
-    req <- httr::GET(url_file,
-                     config = get_config(),
-                     httr::write_disk(path, overwrite = TRUE))
-  } else {
-    stop("Try again with a different file path.")
-  }
+  
+  req <- httr::GET(url_file,
+                   config = get_config(),
+                   httr::write_disk(path, overwrite = TRUE))
 
   if (req$status_code == "200") {
     cat("Download successful")

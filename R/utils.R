@@ -8,34 +8,34 @@
 #' @export get_dictionary
 
 get_dictionary <- function(id, type) {
-
+  
   node_ids <- vector(mode = "list")
   node_names <- vector(mode = "list")
-
+  
   if (type == "children") {
-    node_info <- osfr::get_nodes(id = id, private = TRUE, children = TRUE)
-
+    node_info <- get_nodes(id = id, children = TRUE)
+    
     for (i in seq_along(node_info$data)) {
       node_ids[[i]] <- node_info$data[[i]]$id
       node_names[[i]] <- node_info$data[[i]]$attributes$title
     }
-
+    
   } else if (type == "files" || type == "folders") {
     # THIS MAY NEED TO BE CHANGED TO get_file_info
-    node_info <- osfr::get_nodes(id = id, private = TRUE, files = TRUE)
-
+    node_info <- get_nodes(id = id, files = TRUE)
+    
     for (i in seq_along(node_info$data)) {
       node_ids[[i]] <- node_info$data[[i]]$links$move
       node_names[[i]] <- node_info$data[[i]]$attributes$name
     }
-
+    
   } else {
     stop('Supported types are "children", "files", and "folders".')
   }
-
+  
   # Generate dictionary with 'values = component ids' and 'keys = component names'
   names(node_ids) <- node_names
-
+  
   return(node_ids)
 }
 
@@ -56,9 +56,9 @@ get_dictionary <- function(id, type) {
 move <- function(files, folders, file_name, folder_name, file_num) {
   path <- paste0(tempdir(), "/", file_name)
   to_folder_url <- paste0(folders[[folder_name]], "?kind=file&name=", file_name)
-
-
-
+  
+  
+  
   get_req <- httr::GET(files[[file_name]], config = get_config(), httr::write_disk(path, overwrite = TRUE))
   cat("GET Code:", get_req$status_code, "\n")
   put_req <- httr::PUT(to_folder_url, config = get_config(), body = httr::upload_file(path))
@@ -85,7 +85,7 @@ get_all_file_links <- function(id = "judwb") {
                            name = NA,
                            year = NA,
                            project = NA)
-
+  
   message("Building dictionary")
   if (exists("get_file_dict", envir = .GlobalEnv)) {
     get_file_dict <- get("get_file_dict", envir = .GlobalEnv)
@@ -93,7 +93,7 @@ get_all_file_links <- function(id = "judwb") {
     get_file_dict <- suppressMessages(aghelpR::concoct_directory(id))
     get_file_dict <<- get_file_dict
   }
-
+  
   o <- 1
   message("Issuing requests:")
   for (i in seq_along(get_file_dict$data)) {
@@ -117,7 +117,7 @@ get_all_file_links <- function(id = "judwb") {
             for (name in get_file_dict$components[[j]]$files[[l]]$data) {
               if (stringr::str_detect(name$attributes$name, "Data")) {
                 file_url <- get_file_dict$components[[j]]$files[[l]]$data[[1]]$relationships$files$links$related$href
-
+                
                 if (!is.null(file_url)) {
                   req <- httr::GET(file_url, config = get_config())
                   res <- rjson::fromJSON(httr::content(req, 'text', encoding = "UTF-8"))
@@ -155,33 +155,30 @@ get_all_file_links <- function(id = "judwb") {
 #' @export concoct_directory
 
 concoct_directory <- function(id) {
-
-  children <- suppressMessages(osfr::get_nodes(id = id,
-                                               children = TRUE,
-                                               private = TRUE))
-
+  
+  children <- suppressMessages(get_nodes(id = id,
+                                         children = TRUE))
+  
   for (i in seq_along(children$data)) {
     if (length(children$data) != 0) {
       index <- children$data[[i]]$attributes$title
       children[["components"]][[index]] <- suppressMessages(
-        osfr::get_nodes(children$data[[i]]$id,
-                        children = TRUE,
-                        private = TRUE)
+        get_nodes(children$data[[i]]$id,
+                  children = TRUE)
       )
-
+      
       # This works but not quite how we want
       children[["files"]][[index]] <- suppressMessages(
-        osfr::get_nodes(children$data[[i]]$id,
-                        files = TRUE,
-                        private = TRUE)
+        get_nodes(children$data[[i]]$id,
+                  files = TRUE)
       )
-
+      
       children[["components"]][[index]] <- concoct_directory(children$data[[i]]$id)
-
+      
       cat(".")
     }
   }
-
+  
   return(children)
 }
 
@@ -209,13 +206,71 @@ get_node_url <- function(list) {
       comp_dict <- node_ids
     }
   }
-
+  
   for (k in names(comp_dict)) {
     if (k == list[[length(list)]]) {
       node_url <- comp_dict[[k]]
     }
   }
-
+  
   return(node_url) # WE SHOULD RETURN COMP_DICT AND MAKE THIS FUNCTION "GET_SUBFOLDER_DICT" eventually...
+  
+}
 
+
+#' Get nodes information from OSF.
+#' 
+#' @param id OSF id.
+#' 
+#' @param contributors Looking for contributors?
+#' 
+#' @param files Looking for files?
+#' 
+#' @param children Looking for children...wait...that could be taken the wrong way...Looking for child nodes?
+#' @export get_nodes
+
+get_nodes <- function(id = NULL, contributors = FALSE, files = FALSE,
+                      children = FALSE) {
+  
+  config <- get_config()
+  
+  call <- httr::GET(paste("https://api.osf.io/v2", "nodes", id, sep = "/"), config)
+  
+  res <- rjson::fromJSON(httr::content(call, "text", encoding = "UTF-8"))
+  
+  if (names(res)[1] == "errors" && !is.null(id))
+    stop("Node not found.")
+  
+  if (sum(c(contributors, files, children)) > 1)
+    stop("Specify contributors OR files OR children.")
+  
+  if (contributors) {
+    call <- httr::GET(res$data$relationships$contributors$links$related$href, config)
+    res <- rjson::fromJSON(httr::content(call, "text", encoding = "UTF-8"))
+  }
+  
+  if (files) {
+    # Change to access actual files id under guid tag within osfstorage
+    call <- httr::GET(paste0(res$data$relationships$files$links$related$href, "/osfstorage/"), config)
+    res <- rjson::fromJSON(httr::content(call, "text", encoding = "UTF-8"))
+  }
+  
+  if (children) {
+    call <- httr::GET(res$data$relationships$children$links$related$href, config)
+    res <- rjson::fromJSON(httr::content(call, "text", encoding = "UTF-8"))
+    
+    if (!is.list(res$data))
+      stop(sprintf("No children available for node %s", id))
+  }
+  
+  while (!is.null(res$links$`next`)) {
+    whilst <- rjson::fromJSON(
+      httr::content(
+        httr::GET(res$links$`next`, config), "text", encoding = "UTF-8"))
+    res$data <- c(res$data, whilst$data)
+    res$links$`next` <- whilst$links$`next`
+    message(paste0(res$links$`next`))
+  }
+  
+  return(res)
 }

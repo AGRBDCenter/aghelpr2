@@ -12,7 +12,7 @@
 
 get_data <- function(id = NULL, api_link = NULL) {
   if (!is.null(id)) {
-    node <- get_nodes(id, files = TRUE, private = TRUE)
+    node <- get_nodes(id, files = TRUE)
     api_link <- node$data[[1]]$relationships$files$links$related$href
   }
 

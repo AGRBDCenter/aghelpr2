@@ -1,4 +1,4 @@
-Package: aghelpR
+Package: aghelpr2
 Title: Helper functions for osfr and Ag Department RBDC
 Version: 0.0.1
 Authors@R: c(person("McKay", "Davis", email = "mckaymdavis@gmail.com", role = c("aut", "cre")), person("Dylan", "McDowell", email = "dylan.mcdowell226@gmail.com", role = "aut"))

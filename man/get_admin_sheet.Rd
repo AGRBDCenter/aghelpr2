@@ -7,7 +7,7 @@
 get_admin_sheet(osf_file_id = "z8kpa")
 }
 \arguments{
-\item{osf_file_id}{A string containing the code at the end of an OSF url.
+\item{osf_file_id}{A string constant containing the code at the end of an OSF url. The default value is the current address to the admin sheet, it might change in the future.
 For example, https://osf.io/z8kpa/.
 The default string value is directly to the master sheet.}
 }
@@ -15,5 +15,5 @@ The default string value is directly to the master sheet.}
 A tibble in long format
 }
 \description{
-Retreive Master Admin Project Sheet
+This function retrieves the excel sheet that is updated to contain all current project information. The Admin Sheet is the fulcrum by which the applications operate. If any odd errors arise ensure that you check the admin sheet and that this function is reading it in properly
 }

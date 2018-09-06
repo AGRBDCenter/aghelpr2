@@ -1,12 +1,8 @@
 #' @title Retreive Proper OSF PAT from System Environment
 #' @description This function is a replacement for osfr::login() and will properly assign OSF_PAT to the system environment. This is required to make connection with the account on OSF.
 #' @param pat Personal Access Token (PAT) - Create a PAT at https://osf.io/settings/tokens/ if no token is given an error is thrown.
-#'
-#'
-#'
-#'
-#'
-#'
+#' @export get_osf_pat
+
 get_osf_pat <- function(pat = NULL){
 
   if(!is.null(pat)) {

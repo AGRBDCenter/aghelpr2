@@ -16,7 +16,7 @@ get_data <- function(id = NULL, api_link = NULL) {
     api_link <- node$data[[1]]$relationships$files$links$related$href
   }
 
-  call <- httr::GET(api_link, config = get_config(TRUE))
+  call <- httr::GET(api_link, config = get_config())
   res <- rjson::fromJSON(httr::content(call, 'text', encoding = "UTF-8"))
 
   dat <- data.frame()
@@ -25,7 +25,7 @@ get_data <- function(id = NULL, api_link = NULL) {
   for (i in seq_along(res$data)) {
     dir <- paste0(tmp, "/", res$data[[i]]$attributes$name)
     link <- res$data[[i]]$links$download
-    httr::GET(link, config = get_config(TRUE), httr::write_disk(dir, overwrite = TRUE))
+    httr::GET(link, config = get_config(), httr::write_disk(dir, overwrite = TRUE))
     new_dat <- readr::read_csv(dir)
     dat <- rbind(dat, new_dat)
   }

@@ -197,7 +197,7 @@ get_node_url <- function(list) {
     if (i == 1) {
       comp_dict <- get_dictionary(list[[1]], type = "files")
     } else {
-      call <- httr::GET(url = comp_dict[[list[[i]]]], config = get_config(TRUE))
+      call <- httr::GET(url = comp_dict[[list[[i]]]], config = get_config())
       res <- rjson::fromJSON(httr::content(call, 'text', encoding = "UTF-8"))
       node_ids <- vector(mode = "list")
       node_names <- vector(mode = "list")

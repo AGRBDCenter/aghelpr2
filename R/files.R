@@ -262,6 +262,6 @@ move_waterbutler <- function(from, to) {
   path <- paste0(tempdir(), "/", file_name)
   to_folder_url <- paste0(to_url, "?kind=file&name=", file_name)
 
-  httr::GET(from_url, config = get_config(TRUE), httr::write_disk(path, overwrite = TRUE))
-  httr::PUT(to_folder_url, config = get_config(TRUE), body = httr::upload_file(path))
+  httr::GET(from_url, config = get_config(), httr::write_disk(path, overwrite = TRUE))
+  httr::PUT(to_folder_url, config = get_config(), body = httr::upload_file(path))
 }

@@ -15,7 +15,7 @@
 get_admin_sheet <- function(osf_file_id = "z8kpa") {
 
   admin_dat <- download_files(id = osf_file_id,
-                              path = tempdir()) %>%
+                              path = tempfile()) %>%
     readxl::read_xlsx()
 
   # Transform

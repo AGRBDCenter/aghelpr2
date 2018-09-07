@@ -13,4 +13,3 @@ Imports: stringr,
     readxl,
     readr,
     crayon
-Suggests: osfr

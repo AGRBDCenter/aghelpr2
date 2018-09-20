@@ -61,6 +61,8 @@ download_files <- function(id, path) {
 #' @param id OSF id (osf.io/XXXX) (just "XXXX") of the parent node (Agriculture Division main project component id)
 #'
 #' @param year The current year component or year component to which file moving is desired
+#' 
+#' @param data_comp The name of the data component from which we are moving data (ie. "Raw_Data", "Historical_Raw_Data")
 #'
 #' @param from The file number from which the user wishes to begin. Defaults to the first file in the data folder.
 #'
@@ -69,7 +71,7 @@ download_files <- function(id, path) {
 
 # NEED TO:
 # 1. Add a "name" variable to allow user to upload a file by name/project/whatever
-move_to_projects <- function(id = "judwb", year, from = 1, to = 0) {
+move_to_projects <- function(id = "judwb", year, data_comp = "Raw_Data", from = 1, to = NULL) {
   cat("Setting up. Please wait (This could take a couple minutes).\n")
   # Get current year's component, then get the project components (children) dictionary of that component
   all_child_components <- suppressMessages(get_dictionary(id = id, type = "children"))
@@ -80,7 +82,7 @@ move_to_projects <- function(id = "judwb", year, from = 1, to = 0) {
   # Get dictionary of files for current year
   data_component_id <- all_child_components[["Data"]]
   raw_data_component <- suppressMessages(get_dictionary(id = data_component_id, type = "children"))
-  raw_data_component_id <- raw_data_component[["Raw_Data"]]
+  raw_data_component_id <- raw_data_component[[data_comp]]
   files_dict <- suppressMessages(get_dictionary(id = raw_data_component_id, type = "files"))
   current_files <- vector(mode = "list")
   for (i in names(files_dict)) {
@@ -91,7 +93,7 @@ move_to_projects <- function(id = "judwb", year, from = 1, to = 0) {
   len <- length(current_files)
   cur <- from
 
-  if (to > 0) {
+  if (!is.null(to)) {
     len_cur <- c(from:to)
   } else {
     len_cur <- c(from:len)
@@ -146,6 +148,65 @@ move_to_projects <- function(id = "judwb", year, from = 1, to = 0) {
         }
         cat(cur, "/", len, "\n")
         cur <- cur + 1
+      }
+    }
+  }
+}
+
+
+#' Function to move files from the Raw_Data component in OSF to the Historical_Raw_Data component so that the file mover for individual projects is faster.
+#' 
+#' @export move_to_hist
+
+move_to_hist <- function() {
+  raw_id <- "s5u8z"
+  hist_id <- "hp83u"
+  put_base <- sprintf("https://files.osf.io/v1/resources/%s/providers/osfstorage/?kind=file&name=", hist_id)
+  
+  cat("Setting up\n")
+  files <- suppressMessages(get_nodes(raw_id, files = TRUE))
+  
+  for (i in seq_along(files$data)) {
+    name <- files$data[[i]]$attributes$name
+    get_url <- files$data[[i]]$links$download
+    put_url <- paste0(put_base, name)
+    del_url <- files$data[[i]]$links$delete
+    tmp <- tempfile()
+    
+    cat(name, ":\n")
+    
+    get_req <- httr::GET(get_url, 
+                         config = get_config(), 
+                         httr::write_disk(tmp, overwrite = TRUE))
+    if (get_req$status_code != "200") {
+      warning(paste0("GET process failed on file: ", 
+                     name, 
+                     " with code: ", 
+                     get_req$status_code))
+      cat("Failed to GET\n")
+    } else {
+      put_req <- httr::PUT(put_url, 
+                           config = get_config(), 
+                           body = httr::upload_file(tmp))
+      if (put_req$status_code != "201") {
+        warning(paste0("PUT process failed on file: ",
+                       name,
+                       " with code: ",
+                       put_req$status_code))
+        cat("Failed to PUT\n")
+      } else {
+        cat("Successfully moved\n")
+        del_req <- httr::DELETE(del_url, config = get_config())
+        if (del_req$status_code != "204") {
+          crayon::red(cat("File ", name, " failed to DELETE.",
+                          "\nManually delete this file from Raw_Data component\n",
+                          "id = s5u8z to prevent future errors."))
+          crayon::red(warning("File ", name, " failed to DELETE.",
+                              "\nManually delete this file from Raw_Data component\n",
+                              "id = s5u8z to prevent future errors."))
+        } else {
+          cat("Successfully deleted from Raw\n")
+        }
       }
     }
   }

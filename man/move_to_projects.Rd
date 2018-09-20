@@ -4,12 +4,15 @@
 \alias{move_to_projects}
 \title{Move files from one location to another in OSF using a parent node id.}
 \usage{
-move_to_projects(id = "judwb", year, from = 1, to = 0)
+move_to_projects(id = "judwb", year, data_comp = "Raw_Data", from = 1,
+  to = NULL)
 }
 \arguments{
 \item{id}{OSF id (osf.io/XXXX) (just "XXXX") of the parent node (Agriculture Division main project component id)}
 
 \item{year}{The current year component or year component to which file moving is desired}
+
+\item{data_comp}{The name of the data component from which we are moving data (ie. "Raw_Data", "Historical_Raw_Data")}
 
 \item{from}{The file number from which the user wishes to begin. Defaults to the first file in the data folder.}
 

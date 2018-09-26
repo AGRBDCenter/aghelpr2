@@ -2,15 +2,22 @@
 % Please edit documentation in R/files.R
 \name{download_files}
 \alias{download_files}
-\title{Download files from OSF via a specified file ID.}
+\title{Download files from OSF via a specified file ID. Can be used to download a zip file of all files within a component or "Data" folder in a component.}
 \usage{
-download_files(id, path)
+download_files(id, component = FALSE, folders = FALSE,
+  folder_name = "Data", path)
 }
 \arguments{
-\item{id}{An OSF id.}
+\item{id}{An OSF id to a file or component.}
+
+\item{component}{Specify whether the id is for a component If TRUE, will download each file in the component. Defaults to FALSE.}
+
+\item{folders}{If component = TRUE, specify if the component's data is contained in a folder. If TRUE, will download each file in the component as a .zip file For use with grabbing data from projects. Defaults to FALSE.}
+
+\item{folder_name}{If folders = TRUE, specify the folder name from which to grab zipped data. Defaults to "Data".}
 
 \item{path}{The path to which the file should be downloaded.}
 }
 \description{
-Download files from OSF via a specified file ID.
+Download files from OSF via a specified file ID. Can be used to download a zip file of all files within a component or "Data" folder in a component.
 }

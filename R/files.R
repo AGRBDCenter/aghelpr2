@@ -121,7 +121,7 @@ download_all_files <- function(id = NULL, path) {
   for (j in seq_along(res$data)) {
     to_path <- paste0(path, 
                       "/", 
-                      gsub(" ", "_", res$data[[j]]$attributes$title), 
+                      gsub("/", "", gsub(" ", "_", res$data[[j]]$attributes$title)), 
                       ".zip")
     proj_id <- res$data[[j]]$id
     

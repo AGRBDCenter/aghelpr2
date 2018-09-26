@@ -107,7 +107,7 @@ download_all_files <- function(id = NULL, path) {
     # Ag division Node
     id <- "judwb"
     yr <- format(Sys.Date(), "%Y")
-    url_parent <- get_nodes(id, children = TRUE)
+    res <- get_nodes(id, children = TRUE)
     
     for (i in seq_along(res$data)) {
       if (res$data[[i]]$attributes$title == yr) {
@@ -116,7 +116,7 @@ download_all_files <- function(id = NULL, path) {
     }
   }
   
-  url_parent <- get_nodes(id, children = TRUE)
+  res <- get_nodes(id, children = TRUE)
   
   for (j in seq_along(res$data)) {
     to_path <- paste0(path, 

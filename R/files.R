@@ -32,20 +32,58 @@ upload_revisions <- function() {
 }
 
 
-#' Download files from OSF via a specified file ID.
+#' Download files from OSF via a specified file ID. Can be used to download a zip file of all files within a component or "Data" folder in a component.
 #'
-#' @param id An OSF id.
+#' @param id An OSF id to a file or component.
+#' 
+#' @param component Specify whether the id is for a component If TRUE, will download each file in the component. Defaults to FALSE.
+#' 
+#' @param folders If component = TRUE, specify if the component's data is contained in a folder. If TRUE, will download each file in the component as a .zip file For use with grabbing data from projects. Defaults to FALSE.
+#' 
+#' @param folder_name If folders = TRUE, specify the folder name from which to grab zipped data. Defaults to "Data".
 #'
 #' @param path The path to which the file should be downloaded.
 #'
 #' @export download_files
 
-download_files <- function(id, path) {
-  url_file <- sprintf("https://osf.io/download/%s/", id)
-  
-  req <- httr::GET(url_file,
-                   config = get_config(),
-                   httr::write_disk(path, overwrite = TRUE))
+download_files <- function(id, 
+                           component = FALSE, 
+                           folders = FALSE, 
+                           folder_name = "Data", 
+                           path) {
+  if (!component) {
+    url_file <- sprintf("https://osf.io/download/%s/", id)
+    
+    req <- httr::GET(url_file,
+                     config = get_config(),
+                     httr::write_disk(path, overwrite = TRUE))
+  } else {
+    if (!folders) {
+      # Get each file and download each.
+      link <- sprintf("https://files.osf.io/v1/resources/%s/providers/osfstorage/?zip=", id)
+      
+      req <- httr::GET(link, 
+                       config = get_config(),
+                       httr::write_disk(path, overwrite = TRUE))
+    } else {
+      # Download all files as a zip.
+      # URL for files inside a component within osfstorage provider
+      url_comp <- sprintf("https://api.osf.io/v2/nodes/%s/files/osfstorage/", id)
+      
+      # GET info regarding the files within the component
+      call <- httr::GET(url_comp, config = get_config())
+      res <- rjson::fromJSON(httr::content(call, "text", encoding = "UTF-8"))
+      
+      for (i in seq_along(res$data)) {
+        if (res$data[[i]]$attributes$name == folder_name) {
+          link <- paste0(res$data[[i]]$links$move, "?zip=")
+          req <- httr::GET(link,
+                           config = get_config(),
+                           httr::write_disk(path, overwrite = TRUE))
+        } 
+      }
+    }
+  }
 
   if (req$status_code == "200") {
     cat("Download successful\n")

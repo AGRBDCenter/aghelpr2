@@ -107,10 +107,7 @@ download_all_files <- function(id = NULL, path) {
     # Ag division Node
     id <- "judwb"
     yr <- format(Sys.Date(), "%Y")
-    url_parent <- sprintf("https://api.osf.io/v2/nodes/%s/children/", id)
-    
-    call <- httr::GET(url_parent, config = get_config())
-    res <- rjson::fromJSON(httr::content(call, "text", encoding = "UTF-8"))
+    url_parent <- get_nodes(id, children = TRUE)
     
     for (i in seq_along(res$data)) {
       if (res$data[[i]]$attributes$title == yr) {
@@ -119,10 +116,7 @@ download_all_files <- function(id = NULL, path) {
     }
   }
   
-  url_parent <- sprintf("https://api.osf.io/v2/nodes/%s/children/", id)
-  
-  call <- httr::GET(url_parent, config = get_config())
-  res <- rjson::fromJSON(httr::content(call, "text", encoding = "UTF-8"))
+  url_parent <- get_nodes(id, children = TRUE)
   
   for (j in seq_along(res$data)) {
     to_path <- paste0(path, 
@@ -269,12 +263,30 @@ move_to_hist <- function() {
                            config = get_config(), 
                            body = httr::upload_file(tmp))
       if (put_req$status_code != "201") {
-        warning(paste0("PUT process failed on file: ",
-                       name,
-                       " with code: ",
-                       put_req$status_code))
         cat("Failed to PUT\n")
-      } else {
+        
+        # If the file failed on PUT, chances are it already exists.
+        cat("Attempting update in lieu of adding new file\n")
+        check_url <- sprintf("https://files.osf.io/v1/resources/hp83u/providers/osfstorage/", hist_id)
+        req <- httr::GET(check_url, config = get_config())
+        res <- rjson::fromJSON(httr::content(req, "text", encoding = "UTF-8"))
+        for (j in seq_along(res$data)) {
+          if (res$data[[j]]$attributes$name == name) {
+            up_url <- res$data[[j]]$links$upload
+          }
+        }
+        up_req <- httr::PUT(up_url, 
+                             config = get_config(), 
+                             body = httr::upload_file(tmp))
+        if (up_req$status_code != "200") {
+          warning(paste0("PUT process failed on file: ",
+                         name,
+                         " with code: ",
+                         put_req$status_code))
+          cat("Failed to update\n")
+        }
+      } 
+      if (put_req$status_code == "200" || up_req$status_code == "200") {
         cat("Successfully moved\n")
         del_req <- httr::DELETE(del_url, config = get_config())
         if (del_req$status_code != "204") {
@@ -304,7 +316,7 @@ move_to_hist <- function() {
 #' @return Nothing. If download_local == FALSE, then saves list of dataframes to global environment.
 
 # GARBAGE: Most likely anyway. This could be useful at some point, but not really right now.
-download_all_depricated <- function(download_local = FALSE, id = "judwb", path = getwd()) {
+download_all_deprecated <- function(download_local = FALSE, id = "judwb", path = getwd()) {
   links <- get_all_file_links(id)
 
   if (download_local == TRUE) {

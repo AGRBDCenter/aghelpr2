@@ -80,6 +80,11 @@ download_files <- function(id,
           req <- httr::GET(link,
                            config = get_config(),
                            httr::write_disk(path, overwrite = TRUE))
+          if (req$status_code == "200") {
+            cat("Download successful\n")
+          } else {
+            cat(sprintf("Download unsuccessful. Returned code: %s.\n", req$status_code))
+          }
         } 
       }
     }

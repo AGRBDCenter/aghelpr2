@@ -57,9 +57,8 @@ download_files <- function(id,
     req <- httr::GET(url_file,
                      config = get_config(),
                      httr::write_disk(path, overwrite = TRUE))
-  } else {
-    if (!folders) {
-      # Get each file and download each.
+  } if (!folders) {
+      # Get each file stored outside of a folder and download each as a zip file.
       link <- sprintf("https://files.osf.io/v1/resources/%s/providers/osfstorage/?zip=", id)
       
       req <- httr::GET(link, 
@@ -88,7 +87,6 @@ download_files <- function(id,
         } 
       }
     }
-  }
 
   if (req$status_code == "200") {
     cat("Download successful\n")

@@ -14,7 +14,7 @@ clean_nir <- function(path, proj_name, label) {
   # Read in the data and filter by the label
   enc <- readr::guess_encoding(path)[[1]][1]
   data <- read.csv(path, fileEncoding = enc, header = FALSE)
-  data <- filter(data, grepl(label, dat$V4))
+  data <- filter(data, grepl(label, data$V4))
   
   # Move the column headers from row values to the next column's name
   for (i in 6:length(data)) {

@@ -101,6 +101,8 @@ anova_models <- function(data, alpha = 0.05, date = FALSE) {
     for (var in unique(data_filt$variables)) {
       data2 <- split_aov_var(data_filt, var)
       
+      cat("Attempting ", proj, " ", var, "\n")
+      
       # Variety with Block
       if (check_variety_block(data2)) {
         mod <- aov(value ~ treatments*variety + replications, data = data2)

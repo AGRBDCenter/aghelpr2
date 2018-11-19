@@ -115,14 +115,14 @@ anova_models <- function(data, alpha = 0.05, date = FALSE) {
           mod <- aov(value ~ treatments*variety, data = data2)
           models[[mod_name]] <- mod
         }
-        cat(crayon::cyan(proj), crayon::magenta(var), green("ANOVA Complete"), "\n")
+        cat(crayon::cyan(proj), crayon::magenta(var), crayon::green("ANOVA Complete"), "\n")
         
         # Variety
       } else if (check_variety(data2)) {
         mod <- aov(value ~ treatments*variety, data = data2)
         mod_name <- paste0(str_replace_all(proj, "[^[:alnum:]]", ""), "_",
                            str_replace_all(var, "[^[:alnum:]]", ""))
-        cat(crayon::cyan(proj), crayon::magenta(var), green("ANOVA Complete"), "\n")
+        cat(crayon::cyan(proj), crayon::magenta(var), crayon::green("ANOVA Complete"), "\n")
         
         # Basic with Block
       } else if (check_basic_block(data2)) {
@@ -136,14 +136,14 @@ anova_models <- function(data, alpha = 0.05, date = FALSE) {
           mod <- aov(value ~ treatments, data = data2)
           models[[mod_name]] <- mod
         }
-        cat(crayon::cyan(proj), crayon::magenta(var), green("ANOVA Complete"), "\n")
+        cat(crayon::cyan(proj), crayon::magenta(var), crayon::green("ANOVA Complete"), "\n")
         
         # Basic
       } else if (check_basic(data2)) {
         mod <- aov(value ~ treatments, data = data2)
         mod_name <- paste0(str_replace_all(proj, "[^[:alnum:]]", ""), "_",
                            str_replace_all(var, "[^[:alnum:]]", ""))
-        cat(crayon::cyan(proj), crayon::magenta(var), green("ANOVA Complete"), "\n")
+        cat(crayon::cyan(proj), crayon::magenta(var), crayon::green("ANOVA Complete"), "\n")
       } else {
         cat("ANOVA failed for ", crayon::cyan(proj), " ", crayon::magenta(var), "\n")
       }
@@ -161,7 +161,7 @@ anova_models <- function(data, alpha = 0.05, date = FALSE) {
 tukey_models <- function(models) {
   tukies <- vector(mode = "list")
   for (model_name in names(models)) {
-    cat(crayon::cyan(model_name), green(" Running Tukey HSD"), "\n")
+    cat(crayon::cyan(model_name), crayon::green(" Running Tukey HSD"), "\n")
     model <- models[[model_name]]
     tukey <- HSD.test(model, trt = 'treatments', group = TRUE, alpha = 0.1)
     treatment <- rownames(tukey$groups)

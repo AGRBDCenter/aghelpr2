@@ -4,7 +4,7 @@
 \alias{tukey_models}
 \title{Run Tukey HSD tests on all data.}
 \usage{
-tukey_models(data)
+tukey_models(models)
 }
 \arguments{
 \item{models}{A list of ANOVA models that is returned by anova_models.}

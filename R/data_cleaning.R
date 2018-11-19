@@ -60,7 +60,7 @@ clean_harvester <- function(path) {
 }
 
 
-#' Clean Dr. Hopkin's lab results data. This requires that the project name be included in the file treatments column.
+#' Clean Dr. Hopkin's lab results data. This requires that the project name be included in the file treatments column which requires that we send the project name with the samples exactly as we want it entered.
 #'
 #' @param path The path to the file in the directory.
 #' @export clean_labresults
@@ -87,4 +87,18 @@ clean_potato <- function(path) {
 
 clean_specgrav <- function(path) {
   return(data)
+}
+
+
+#' Takes a list of data and puts it together in a single dataframe.
+#'
+#' @param data A list of dataframes.
+#' @export compose_data
+
+compose_data <- function(data) {
+  full_data <- data.frame()
+  for (i in seq_along(data)) {
+    full_data <- plyr::rbind.fill(full_data, data[[i]])
+  }
+  return(full_data)
 }

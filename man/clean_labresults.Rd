@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_cleaning.R
 \name{clean_labresults}
 \alias{clean_labresults}
-\title{Clean Dr. Hopkin's lab results data. This requires that the project name be included in the file treatments column.}
+\title{Clean Dr. Hopkin's lab results data. This requires that the project name be included in the file treatments column which requires that we send the project name with the samples exactly as we want it entered.}
 \usage{
 clean_labresults(path)
 }
@@ -10,5 +10,5 @@ clean_labresults(path)
 \item{path}{The path to the file in the directory.}
 }
 \description{
-Clean Dr. Hopkin's lab results data. This requires that the project name be included in the file treatments column.
+Clean Dr. Hopkin's lab results data. This requires that the project name be included in the file treatments column which requires that we send the project name with the samples exactly as we want it entered.
 }

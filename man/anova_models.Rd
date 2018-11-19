@@ -2,13 +2,17 @@
 % Please edit documentation in R/stat_analysis.R
 \name{anova_models}
 \alias{anova_models}
-\title{Run ANOVA tests on all data.}
+\title{A function to get all ANOVA models. Returns a list of models.}
 \usage{
-anova_models(data)
+anova_models(data, alpha = 0.05, date = FALSE)
 }
 \arguments{
 \item{data}{A dataframe or tibble object containing data in a standardized form. Must include at the minimum: project_name, treatments, replications, variables, value.}
+
+\item{alpha}{The level of significance}
+
+\item{date}{Whether or not we should split the analysis by date}
 }
 \description{
-Run ANOVA tests on all data.
+A function to get all ANOVA models. Returns a list of models.
 }

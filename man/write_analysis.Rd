@@ -2,13 +2,17 @@
 % Please edit documentation in R/stat_analysis.R
 \name{write_analysis}
 \alias{write_analysis}
-\title{Parse Tukey HSD tests to csv and png. (Possibly not png anymore as may not be useful). Will include information on how to read the analysis and what the columns mean, etc.}
+\title{Returns an initial report to be reviewed for significance in xlsx format with tabs for each project. Tukey HSD models are written to this report.
+Models should be evaluated to determine if orthogonal contrasts should be used, other variables included in the model, or other processes on a case by case basis.}
 \usage{
-write_analysis(models)
+write_analysis(models, path)
 }
 \arguments{
 \item{models}{A list of Tukey HSD tibbles that is returned by tukey_models.}
+
+\item{path}{The path where you want the output saved.}
 }
 \description{
-Parse Tukey HSD tests to csv and png. (Possibly not png anymore as may not be useful). Will include information on how to read the analysis and what the columns mean, etc.
+Returns an initial report to be reviewed for significance in xlsx format with tabs for each project. Tukey HSD models are written to this report.
+Models should be evaluated to determine if orthogonal contrasts should be used, other variables included in the model, or other processes on a case by case basis.
 }

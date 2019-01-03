@@ -275,3 +275,91 @@ get_nodes <- function(id = NULL, contributors = FALSE, files = FALSE,
   
   return(res)
 }
+
+
+#' Create a component within a project (Code taken from osfr)
+#'
+#' @param id OSF id (osf.io/XXXX; just XXXX) of parent project
+#' @param title Title of the component [required]
+#' @param description Description of the component [optional]
+#' @param category Category of component, for valid categories
+#'   see \code{\link{process_category}}, defaults to `project`
+#' @param private Boolean of whether the component is supposed to be private
+#'
+#' @return OSF id of created component
+#'
+#' @export
+
+create_component <- function(
+  id,
+  title,
+  description = '',
+  private = TRUE) {
+  
+  category = 'project'
+  config <- get_config()
+  
+  url_osf <- sprintf('https://api.osf.io/v2/nodes/%s/children/', id)
+  
+  body <- list(
+    data = list(
+      type = 'nodes',
+      attributes = list(
+        title = title,
+        category = category,
+        description = description,
+        public = (!private)
+      )
+    )
+  )
+  
+  call <- httr::POST(
+    url = url_osf,
+    body = body, 
+    encode = 'json',
+    config)
+  
+  if (call$status_code != 201) {
+    stop('Failed to create new component')
+  }
+  
+  res <- rjson::fromJSON(httr::content(call, 'text', encoding = "UTF-8"))
+  id <- res$data$id
+  
+  return(id)
+}
+
+
+#' Create a new folder on OSF project. (Code from osfr)
+#'
+#' @param id Parent OSF project id (osf.io/XXXX; just XXXX) to create folder in
+#' @param path Name of the folder (cannot handle recursive at the moment).
+#'
+#' @return Waterbutler URL
+#' @export
+
+create_folder <- function(id, path) {
+  
+  config <- get_config()
+  
+  lvls <- strsplit(path, "\\/")[[1]]
+  path_root <- lvls[1]
+  
+  # Create root folder
+  url_osf <-  sprintf('https://files.osf.io/v1/resources/%s/providers/%s/%s', 
+                      id, 
+                      'osfstorage',
+                      paste0("?kind=folder&name=", path_root))
+  url_osf <- gsub(url_osf, pattern = "\\s", replacement = "%20", perl = TRUE)
+  call <- httr::PUT(url_osf, config = config)
+  
+  if (call$status_code == 409) {
+    stop("Conflict in folder naming. Folder with this name already exists.")
+  } else if (call$status_code != 201) {
+    stop("Unsuccessful folder creation.")
+  }
+  
+  res <- rjson::fromJSON(httr::content(call, 'text', encoding = "UTF-8"))
+  
+  invisible(res$data$links$new_folder)
+}
